@@ -1,4 +1,7 @@
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 //网格吸附系统
 public class GridSystem : MonoBehaviour
 {
@@ -8,6 +11,17 @@ public class GridSystem : MonoBehaviour
     public Vector2Int gridSize = new Vector2Int(20, 20);  // 网格范围
     
     private bool[,] occupiedGrid;  // 占用标记
+
+    /// <summary>
+    /// 将当前配置的中心点换算成网格左下角起点
+    /// </summary>
+    private Vector2 GetGridCornerOrigin()
+    {
+        return new Vector2(
+            gridOrigin.x - (gridSize.x * cellSize) * 0.5f,
+            gridOrigin.y - (gridSize.y * cellSize) * 0.5f
+        );
+    }
     
     void Start()
     {
@@ -19,8 +33,9 @@ public class GridSystem : MonoBehaviour
     /// </summary>
     public Vector3 SnapToGrid(Vector3 worldPos)
     {
-        float x = Mathf.Round((worldPos.x - gridOrigin.x) / cellSize) * cellSize + gridOrigin.x;
-        float z = Mathf.Round((worldPos.z - gridOrigin.y) / cellSize) * cellSize + gridOrigin.y;
+        Vector2 cornerOrigin = GetGridCornerOrigin();
+        float x = Mathf.Round((worldPos.x - cornerOrigin.x) / cellSize) * cellSize + cornerOrigin.x;
+        float z = Mathf.Round((worldPos.z - cornerOrigin.y) / cellSize) * cellSize + cornerOrigin.y;
         return new Vector3(x, 0, z);
     }
     
@@ -29,8 +44,9 @@ public class GridSystem : MonoBehaviour
     /// </summary>
     public Vector2Int[] GetOccupiedCells(Vector3 position, Vector2Int size)
     {
-        int startX = Mathf.RoundToInt((position.x - gridOrigin.x) / cellSize);
-        int startZ = Mathf.RoundToInt((position.z - gridOrigin.y) / cellSize);
+        Vector2 cornerOrigin = GetGridCornerOrigin();
+        int startX = Mathf.RoundToInt((position.x - cornerOrigin.x) / cellSize);
+        int startZ = Mathf.RoundToInt((position.z - cornerOrigin.y) / cellSize);
         
         // 处理家具尺寸为奇数的情况（中心对齐）
         startX -= (size.x - 1) / 2;
@@ -90,21 +106,42 @@ public class GridSystem : MonoBehaviour
     /// </summary>
     void OnDrawGizmos()
     {
-        if (!Application.isPlaying) return;
-        
+        Vector2 cornerOrigin = GetGridCornerOrigin();
         Gizmos.color = Color.gray;
         for (int x = 0; x <= gridSize.x; x++)
         {
-            Vector3 start = new Vector3(gridOrigin.x + x * cellSize, 0, gridOrigin.y);
-            Vector3 end = new Vector3(gridOrigin.x + x * cellSize, 0, gridOrigin.y + gridSize.y * cellSize);
+            Vector3 start = new Vector3(cornerOrigin.x + x * cellSize, 0, cornerOrigin.y);
+            Vector3 end = new Vector3(cornerOrigin.x + x * cellSize, 0, cornerOrigin.y + gridSize.y * cellSize);
             Gizmos.DrawLine(start, end);
         }
-        
+
         for (int z = 0; z <= gridSize.y; z++)
         {
-            Vector3 start = new Vector3(gridOrigin.x, 0, gridOrigin.y + z * cellSize);
-            Vector3 end = new Vector3(gridOrigin.x + gridSize.x * cellSize, 0, gridOrigin.y + z * cellSize);
+            Vector3 start = new Vector3(cornerOrigin.x, 0, cornerOrigin.y + z * cellSize);
+            Vector3 end = new Vector3(cornerOrigin.x + gridSize.x * cellSize, 0, cornerOrigin.y + z * cellSize);
             Gizmos.DrawLine(start, end);
         }
+
+#if UNITY_EDITOR
+        // 在每个格子中心显示坐标，左下角为(0,0)
+        GUIStyle labelStyle = new GUIStyle(EditorStyles.miniLabel)
+        {
+            normal = { textColor = Color.white },
+            alignment = TextAnchor.MiddleCenter
+        };
+
+        for (int x = 0; x < gridSize.x; x++)
+        {
+            for (int z = 0; z < gridSize.y; z++)
+            {
+                Vector3 cellCenter = new Vector3(
+                    cornerOrigin.x + (x + 0.5f) * cellSize,
+                    0.02f,
+                    cornerOrigin.y + (z + 0.5f) * cellSize
+                );
+                Handles.Label(cellCenter, $"({x},{z})", labelStyle);
+            }
+        }
+#endif
     }
 }

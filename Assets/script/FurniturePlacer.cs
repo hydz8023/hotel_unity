@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-
+//家具放置核心
 public class FurniturePlacer : MonoBehaviour
 {
     [Header("组件引用")]

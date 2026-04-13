@@ -1,5 +1,5 @@
 using UnityEngine;
-//防止预览
+//放置预览
 public class PlacementPreview : MonoBehaviour
 {
     public GameObject previewObject;      // 预览用的半透明物体
