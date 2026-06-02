@@ -18,6 +18,7 @@ public class PlacementPreview : MonoBehaviour
     void Update()
     {
         if (!isPlacing) return;
+        if (!GameInputGate.AllowsWorldInput) return;
         
         // 预览跟随鼠标
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -42,9 +43,14 @@ public class PlacementPreview : MonoBehaviour
                 PlaceFurniture();
             }
             
-            // 按Esc取消
+            // 按Esc取消（若 Popup 打开则优先关面板）
             if (Input.GetKeyDown(KeyCode.Escape))
             {
+                if (UIManager.Instance != null && UIManager.Instance.TryCloseTopPopup())
+                {
+                    return;
+                }
+
                 CancelPlacement();
             }
             

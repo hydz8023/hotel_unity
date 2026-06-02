@@ -24,6 +24,11 @@ public class FurniturePlacer : MonoBehaviour
     
     void Update()
     {
+        if (!GameInputGate.AllowsWorldInput)
+        {
+            return;
+        }
+
         HandleMouseInput();
     }
     
@@ -48,9 +53,14 @@ public class FurniturePlacer : MonoBehaviour
             RotateFurniture();
         }
         
-        // 取消放置（按Esc）
+        // 取消放置（按Esc；若 Popup 打开则优先关面板）
         if (isDragging && Input.GetKeyDown(KeyCode.Escape))
         {
+            if (UIManager.Instance != null && UIManager.Instance.TryCloseTopPopup())
+            {
+                return;
+            }
+
             CancelDragging();
         }
     }

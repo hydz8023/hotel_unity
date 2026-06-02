@@ -26,6 +26,11 @@ public class CameraController : MonoBehaviour
 
     private void Update()
     {
+        if (!GameInputGate.AllowsWorldInput)
+        {
+            return;
+        }
+
         HandleMove();
         HandleRotate();
         HandleZoom();

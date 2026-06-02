@@ -67,6 +67,6 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "hotel_unity.slnx",
+    "dotnet.defaultSolution": "hotel_unity.sln",
     "dotnet.enableWorkspaceBasedDevelopment": false
 }

@@ -28,6 +28,12 @@
   - `InnLayoutData.cs`：可序列化布局模型（`InnLayoutData` + `PlacedFurniture`）。
 - **持久化**
   - `LayoutSaver.cs`：基于 JSON 的保存/读取/删除入口，路径在 `Application.persistentDataPath` 下。
+- **UI 管理（第一阶段）**
+  - `UIManager.cs`：面板 Open/Close/Refresh、Popup 栈、输入模式切换。
+  - `UIPanelRegistry` / `UIPanelConfig`：面板 id 与 Prefab/层级配置（ScriptableObject）。
+  - `HUDPanel` / `DailyReportPanel`：v0.2 HUD 与日结 Popup。
+  - `GameInputGate`：与 `FurniturePlacer` / `PlacementPreview` / `CameraController` 互斥。
+  - 详见 [doc/ui-system.md](doc/ui-system.md)。
 
 ## 当前运行链路
 
@@ -62,18 +68,25 @@
    - `PlacedFurniture` 是运行时实例的持久化单元。
 4. **保持文件归类一致**
    - 运行时摆放逻辑统一放在 `Assets/script/`。
+   - UI 管理逻辑统一放在 `Assets/script/UI/`。
    - 相机控制逻辑统一放在 `Assets/Script/`（注意目录大小写）。
    - 新增数据类按用途选择可序列化类或 `ScriptableObject`。
-5. **改动后验证**
+5. **UI 与摆放互斥**
+   - `pauseGameplay=true` 的面板打开时，`GameInputMode` 为 `UIOnly`，摆放/预览/相机停止响应。
+   - Esc 优先关闭顶层 Popup，再处理拖拽/预览取消。
+   - UI 面板不直接修改网格占用或 `LayoutSaver` 数据。
+6. **改动后验证**
    - 检查修改脚本的编译错误。
    - 若改动摆放流程，至少验证：移动、旋转、取消、保存、重载。
    - 若改动网格可视化，确认 Gizmos 与格子坐标显示正常。
    - 若改动相机，确认 `WASD/QE/滚轮` 均生效，且旋转枢轴符合预期。
+   - 若改动 UI，确认 Popup 打开时摆放/相机暂停，Esc 可关闭 Popup。
 
 ## 后续可选重构建议
 
 - 在 `Assets/script/` 下引入子目录：
   - `Placement/`（`GridSystem`、`FurniturePlacer`、`PlacementPreview`）
+  - `UI/`（`UIManager`、面板与配置，**已部分落地**）
   - `Data/`（`FurnitureData`、`FurnitureDatabase`、`InnLayoutData`）
   - `Persistence/`（`LayoutSaver`）
   - `Runtime/`（`FurnitureItem`）
