@@ -12,7 +12,7 @@ public abstract class UIPanelBase : MonoBehaviour
         PanelId = panelId;
     }
 
-    public virtual void OnOpen(object param) { }
+    public virtual void OnShow(object param) { }
 
     public virtual void OnClose() { }
 

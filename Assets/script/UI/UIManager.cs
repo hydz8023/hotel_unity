@@ -46,7 +46,7 @@ public class UIManager : MonoBehaviour
     {
         if (openHudOnStart)
         {
-            Open(PanelHUD, new HUDData(0, 0f));
+            // Open(PanelHUD, new HUDData(0, 0f));
         }
     }
 
@@ -71,6 +71,11 @@ public class UIManager : MonoBehaviour
         return activePanels.TryGetValue(panelId, out UIPanelHandle handle) && handle.IsVisible;
     }
 
+    public static void ShowPanel(string panelId, object param = null)
+    {
+        Instance?.Show(panelId, param);
+    }
+
     public bool HasOpenPopup()
     {
         return popupStack.Count > 0;
@@ -86,7 +91,7 @@ public class UIManager : MonoBehaviour
         return null;
     }
 
-    public UIPanelBase Open(string panelId, object param = null)
+    private UIPanelBase Show(string panelId, object param = null)
     {
         UIPanelConfig config = ResolveConfig(panelId);
         if (config == null)
@@ -225,7 +230,7 @@ public class UIManager : MonoBehaviour
     {
         handle.Instance.SetActive(true);
         handle.IsVisible = true;
-        handle.View?.OnOpen(param);
+        handle.View?.OnShow(param);
 
         if (handle.Config.layer == UILayer.Popup)
         {

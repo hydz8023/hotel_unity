@@ -27,7 +27,7 @@ public class UIDemoController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.F2))
         {
-            UIManager.Instance.Open(
+            UIManager.ShowPanel(
                 UIManager.PanelDailyReport,
                 new DailyReportData(demoDay, demoIncome, demoExpense, demoSatisfaction));
         }

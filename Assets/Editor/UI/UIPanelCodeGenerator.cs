@@ -23,15 +23,16 @@ namespace Hotel.Editor.UI
 
         private static readonly Dictionary<Type, string> ControlPrefixMap = new Dictionary<Type, string>
         {
-            { typeof(Button),      "btn_"   },
-            { typeof(Image),       "img_"   },
-            { typeof(RawImage),    "raw_"   },
-            { typeof(Text),        "txt_"   },
-            { typeof(Slider),      "sld_"   },
-            { typeof(Toggle),      "tog_"   },
-            { typeof(Dropdown),    "dd_"    },
-            { typeof(InputField),  "input_" },
-            { typeof(ScrollRect),  "scroll_"},
+            { typeof(Button),        "btn_"   },
+            { typeof(Image),         "img_"   },
+            { typeof(RawImage),      "raw_"   },
+            { typeof(Text),          "txt_"   },
+            { typeof(Slider),        "sld_"   },
+            { typeof(Toggle),        "tog_"   },
+            { typeof(Dropdown),      "dd_"    },
+            { typeof(InputField),    "input_" },
+            { typeof(ScrollRect),    "scroll_"},
+            { typeof(RectTransform), "tra_"   },
         };
 
         private static readonly Dictionary<Type, string> TMPControlPrefixMap = new Dictionary<Type, string>
@@ -152,9 +153,8 @@ namespace Hotel.Editor.UI
         private static List<CollectedControl> CollectControls(GameObject root)
         {
             var result = new List<CollectedControl>();
-            var allUI = root.GetComponentsInChildren<UIBehaviour>(true);
 
-            // 合并 TMP 类型（如果存在）
+            // 合并 ControlPrefixMap + TMP 类型
             var prefixMap = new Dictionary<Type, string>(ControlPrefixMap);
             foreach (var kvp in TMPControlPrefixMap)
             {
@@ -164,7 +164,18 @@ namespace Hotel.Editor.UI
                 }
             }
 
-            foreach (var comp in allUI)
+            // 收集所有候选组件（UIBehaviour + RectTransform），支持 tra_ 等非 UIBehaviour 的前缀
+            var candidates = new List<Component>();
+            candidates.AddRange(root.GetComponentsInChildren<UIBehaviour>(true));
+            candidates.AddRange(root.GetComponentsInChildren<RectTransform>(true));
+
+            // 去重：同一 GameObject + 同一 Type 只保留一个
+            candidates = candidates
+                .GroupBy(c => new { GO = c.gameObject.GetInstanceID(), Type = c.GetType().FullName })
+                .Select(g => g.First())
+                .ToList();
+
+            foreach (var comp in candidates)
             {
                 Type type = comp.GetType();
                 if (!prefixMap.TryGetValue(type, out string requiredPrefix))
@@ -195,7 +206,7 @@ namespace Hotel.Editor.UI
                 });
             }
 
-            // 去重（同一 GameObject 上的多个组件理论上不会，但保险起见）
+            // 最终去重（按字段名）
             return result
                 .GroupBy(c => c.FieldName)
                 .Select(g => g.First())
@@ -214,6 +225,7 @@ namespace Hotel.Editor.UI
             if (type == typeof(Dropdown)) return "Dropdown";
             if (type == typeof(InputField)) return "InputField";
             if (type == typeof(ScrollRect)) return "ScrollRect";
+            if (type == typeof(RectTransform)) return "RectTransform";
 
             // TMP
             string fullName = type.FullName ?? type.Name;
