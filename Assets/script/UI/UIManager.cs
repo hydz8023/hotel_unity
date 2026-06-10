@@ -2,6 +2,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+interface IUIPanelBase
+{
+    UIPanelBase New(string panelId);
+    string TargetPanelName();
+}
+
 /// <summary>
 /// UI 加载/关闭/缓存管理器（第一阶段：HUD + Popup 两层）。
 /// </summary>
