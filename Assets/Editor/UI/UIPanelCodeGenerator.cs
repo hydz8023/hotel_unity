@@ -288,7 +288,7 @@ namespace Hotel.Editor.UI
             sb.AppendLine("/// </summary>");
             sb.AppendLine($"public class {concreteClassName} : {baseClassName}");
             sb.AppendLine("{");
-            sb.AppendLine("    protected override void OnOpen(object param)");
+            sb.AppendLine("    protected override void OnShow(object param)");
             sb.AppendLine("    {");
             sb.AppendLine("        // TODO: 初始化逻辑");
             sb.AppendLine("    }");

@@ -6,17 +6,17 @@
 /// </summary>
 public class MainScreenPanel : MainScreenPanelBase
 {
-    protected override void OnOpen(object param)
+    public override void OnShow(object param)
     {
         // TODO: 初始化逻辑
     }
 
-    protected override void OnRefresh(object param)
+    public override void OnRefresh(object param)
     {
         // TODO: 刷新逻辑
     }
 
-    protected override void OnClose()
+    public override void OnClose()
     {
         // TODO: 清理逻辑
     }
