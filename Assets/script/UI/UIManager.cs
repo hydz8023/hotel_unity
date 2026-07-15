@@ -22,8 +22,13 @@ public class UIManager : MonoBehaviour
     public UIPanelRegistry panelRegistry;
     public bool openHudOnStart = true;
 
+    [Header("预制体引用（可选，优先于运行时构造）")]
+    public GameObject hudPrefab;
+    public GameObject dailyReportPrefab;
+
     [Header("层级节点（可留空，运行时自动创建）")]
     public Canvas uiCanvas;
+    public Camera uiCamera;
     public RectTransform hudLayer;
     public RectTransform popupLayer;
     public Image popupBlocker;
@@ -45,6 +50,7 @@ public class UIManager : MonoBehaviour
         }
 
         Instance = this;
+        EnsureUICamera();
         EnsureCanvasHierarchy();
     }
 
@@ -270,6 +276,7 @@ public class UIManager : MonoBehaviour
             config.cacheOnClose = true;
             config.blockInputBelow = false;
             config.pauseGameplay = false;
+            config.prefab = Instance?.hudPrefab;
             return config;
         }
 
@@ -279,6 +286,7 @@ public class UIManager : MonoBehaviour
             config.cacheOnClose = true;
             config.blockInputBelow = true;
             config.pauseGameplay = true;
+            config.prefab = Instance?.dailyReportPrefab;
             return config;
         }
 
@@ -378,6 +386,43 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 创建专用 UI Camera（如果未在 Inspector 中指定）。
+    /// UI Camera 仅渲染 UI 层，以 DepthOnly 叠加在主相机上。
+    /// </summary>
+    private void EnsureUICamera()
+    {
+        if (uiCamera != null)
+            return;
+
+        GameObject camObj = new GameObject("UI Camera", typeof(Camera));
+        camObj.transform.SetParent(transform, false);
+        uiCamera = camObj.GetComponent<Camera>();
+
+        uiCamera.clearFlags = CameraClearFlags.Depth;
+        uiCamera.cullingMask = LayerMask.GetMask("UI");
+        uiCamera.orthographic = false;
+        uiCamera.fieldOfView = 60f;
+        uiCamera.nearClipPlane = 0.3f;
+        uiCamera.farClipPlane = 200f;
+        uiCamera.depth = 1f;          // 高于 Main Camera (depth=-1)
+        uiCamera.allowHDR = false;
+        uiCamera.allowMSAA = false;
+        uiCamera.useOcclusionCulling = false;
+
+        // 不包含 AudioListener（音效监听由 Main Camera 负责）
+        AudioListener uiListener = uiCamera.GetComponent<AudioListener>();
+        if (uiListener != null)
+            Destroy(uiListener);
+
+        // 修正主相机：移除 UI 层，避免重复渲染
+        Camera mainCam = Camera.main;
+        if (mainCam != null && mainCam != uiCamera)
+        {
+            mainCam.cullingMask &= ~LayerMask.GetMask("UI");
+        }
+    }
+
     private void EnsureCanvasHierarchy()
     {
         if (uiCanvas == null)
@@ -385,7 +430,11 @@ public class UIManager : MonoBehaviour
             GameObject canvasObject = new GameObject("UICanvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             canvasObject.transform.SetParent(transform, false);
             uiCanvas = canvasObject.GetComponent<Canvas>();
-            uiCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+
+            // 使用 ScreenSpaceCamera 模式，由独立 UI Camera 渲染
+            uiCanvas.renderMode = RenderMode.ScreenSpaceCamera;
+            uiCanvas.worldCamera = uiCamera;
+            uiCanvas.planeDistance = 100f;
 
             CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
