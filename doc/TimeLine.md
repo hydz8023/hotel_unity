@@ -1,8 +1,8 @@
 # 武侠客栈经营游戏 — 多版本开发时间表
 
-> 依据 [doc/idear.md](doc/idear.md) 策划案制定。采用**多版本、小步交付**：每个版本结束都有可运行、可演示的 build，避免 16 周内铺全所有系统。
+> 依据 [idear.md](idear.md) 策划案制定。采用**多版本、小步交付**：每个版本结束都有可运行、可演示的 build，避免 16 周内铺全所有系统。
 >
-> **当前工程基线（已完成）**：摄像机控制、`GridSystem` / `FurniturePlacer` / `PlacementPreview` / `LayoutSaver` 网格摆放与 JSON 存档；**UI 管理骨架（第一阶段）**：`UIManager` / `HUDPanel` / `DailyReportPanel`（见 [doc/ui-system.md](doc/ui-system.md)）。
+> **当前工程基线（已完成）**：摄像机控制、`GridSystem` / `FurniturePlacer` / `PlacementPreview` / `LayoutSaver` 网格摆放与 JSON 存档；**UI 管理骨架（第一阶段）**：`UIManager` / `HUDPanel` / `DailyReportPanel`（见 [ui-system.md](ui-system.md)）。
 
 ---
 
@@ -63,7 +63,7 @@ v0.1 摆放 ──► v0.2 经营循环 ──► v0.3 武侠氛围
 
 ## UI 管理系统（跨版本）
 
-> 详细设计见 [doc/ui-system.md](doc/ui-system.md)。
+> 详细设计见 [ui-system.md](ui-system.md)。
 
 | 阶段 | 版本范围 | 状态 | 核心交付 |
 | :--- | :--- | :--- | :--- |
@@ -398,6 +398,6 @@ v0.1 摆放 ──► v0.2 经营循环 ──► v0.3 武侠氛围
 
 ## 参考文档
 
-- 策划案：[doc/idear.md](doc/idear.md)
+- 策划案：[idear.md](idear.md)
 - 技术约定：[AGENTS.md](AGENTS.md)
-- UI 系统：[doc/ui-system.md](doc/ui-system.md)
+- UI 系统：[ui-system.md](ui-system.md)

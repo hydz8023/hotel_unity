@@ -1,6 +1,6 @@
 # 武侠客栈经营游戏 — 策划案大纲
 
-> 本文档为策划案骨架，依据 [TimeLine.md](../TimeLine.md) 多版本开发路线与 [AGENTS.md](../AGENTS.md) 技术现状整理。各章节可在后续迭代中逐节填充细节。
+> 本文档为策划案骨架，依据 [TimeLine.md](TimeLine.md) 多版本开发路线与 [AGENTS.md](../AGENTS.md) 技术现状整理。各章节可在后续迭代中逐节填充细节。
 
 ---
 
@@ -869,7 +869,7 @@
 
 ## 8. 内容规划清单（按版本）
 
-> 详细周计划与工期见 [TimeLine.md](../TimeLine.md)。以下为各**版本里程碑**与策划系统对应关系，避免单版铺得过满。
+> 详细周计划与工期见 [TimeLine.md](TimeLine.md)。以下为各**版本里程碑**与策划系统对应关系，避免单版铺得过满。
 
 ### v0.1 — 摆放原型（已完成）
 - [x] 网格摆放、碰撞、布局 JSON 存档
@@ -970,5 +970,5 @@
 
 ## 附录 B：参考文档
 
-- 开发时间表：[TimeLine.md](../TimeLine.md)
+- 开发时间表：[TimeLine.md](TimeLine.md)
 - 技术架构与代码约定：[AGENTS.md](../AGENTS.md)
