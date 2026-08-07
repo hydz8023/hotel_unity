@@ -25,7 +25,17 @@ public class GridSystem : MonoBehaviour
     
     void Start()
     {
-        occupiedGrid = new bool[gridSize.x, gridSize.y];
+        EnsureGrid();
+    }
+
+    /// <summary>
+    /// 惰性初始化占用数组：防止在其他脚本 Awake/Start 早于本脚本时调用
+    /// IsPositionAvailable/OccupyCells 触发空引用异常（NRE）。
+    /// </summary>
+    private void EnsureGrid()
+    {
+        if (occupiedGrid == null)
+            occupiedGrid = new bool[gridSize.x, gridSize.y];
     }
     
     /// <summary>
@@ -71,6 +81,7 @@ public class GridSystem : MonoBehaviour
     /// </summary>
     public bool IsPositionAvailable(Vector3 position, Vector2Int size, string ignoreInstanceId = null)
     {
+        EnsureGrid();
         Vector2Int[] cells = GetOccupiedCells(position, size);
         
         foreach (Vector2Int cell in cells)
@@ -90,6 +101,7 @@ public class GridSystem : MonoBehaviour
     /// </summary>
     public void OccupyCells(Vector3 position, Vector2Int size, bool occupy)
     {
+        EnsureGrid();
         Vector2Int[] cells = GetOccupiedCells(position, size);
         
         foreach (Vector2Int cell in cells)

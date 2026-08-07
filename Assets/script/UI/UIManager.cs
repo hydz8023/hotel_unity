@@ -35,6 +35,9 @@ public class UIManager : MonoBehaviour
 
     public GameInputMode InputMode { get; private set; } = GameInputMode.World;
 
+    [Header("SO 输入模式（驱动玩法层 GameInputGate，解耦单例依赖）")]
+    public InputModeVariable inputMode;
+
     public System.Action<string> OnPanelOpened;
     public System.Action<string> OnPanelClosed;
 
@@ -50,6 +53,7 @@ public class UIManager : MonoBehaviour
         }
 
         Instance = this;
+        GameInputGate.Bind(inputMode);
         EnsureUICamera();
         EnsureCanvasHierarchy();
     }
@@ -355,6 +359,10 @@ public class UIManager : MonoBehaviour
         }
 
         InputMode = pauseGameplay ? GameInputMode.UIOnly : GameInputMode.World;
+
+        // 同步写入 SO，使玩法层（经 GameInputGate）无需依赖本单例即可感知输入模式
+        if (inputMode != null)
+            inputMode.Value = InputMode;
     }
 
     private void RefreshPopupBlocker()

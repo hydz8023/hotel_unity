@@ -53,14 +53,10 @@ public class FurniturePlacer : MonoBehaviour
             RotateFurniture();
         }
         
-        // 取消放置（按Esc；若 Popup 打开则优先关面板）
+        // 取消放置（按Esc）。Popup 的 Esc 关闭由 UIManager 自行处理；
+        // 暂停类 Popup 打开时 AllowsWorldInput=false，本分支不会进入，Esc 优先级天然成立。
         if (isDragging && Input.GetKeyDown(KeyCode.Escape))
         {
-            if (UIManager.Instance != null && UIManager.Instance.TryCloseTopPopup())
-            {
-                return;
-            }
-
             CancelDragging();
         }
     }
@@ -85,8 +81,8 @@ public class FurniturePlacer : MonoBehaviour
                 originalPosition = currentDraggingFurniture.transform.position;
                 originalRotation = currentDraggingFurniture.transform.rotation;
                 
-                // 从网格中暂时移除占用标记
-                gridSystem.OccupyCells(originalPosition, GetGridSizeFromData(currentFurnitureData), false);
+                // 从网格中暂时移除占用标记（按当前旋转计算 footprint）
+                gridSystem.OccupyCells(originalPosition, GetGridSizeFromData(currentFurnitureData, currentDraggingFurniture.transform.eulerAngles.y), false);
                 
                 isDragging = true;
                 SetMaterial(currentDraggingFurniture, validMaterial);
@@ -107,8 +103,8 @@ public class FurniturePlacer : MonoBehaviour
             Vector3 targetPos = ray.GetPoint(enter);
             Vector3 snappedPos = gridSystem.SnapToGrid(targetPos);
             
-            // 检查位置是否可用
-            bool isValid = gridSystem.IsPositionAvailable(snappedPos, GetGridSizeFromData(currentFurnitureData));
+            // 检查位置是否可用（按当前旋转计算 footprint）
+            bool isValid = gridSystem.IsPositionAvailable(snappedPos, GetGridSizeFromData(currentFurnitureData, currentDraggingFurniture.transform.eulerAngles.y));
             
             // 更新视觉反馈
             SetMaterial(currentDraggingFurniture, isValid ? validMaterial : invalidMaterial);
@@ -124,7 +120,7 @@ public class FurniturePlacer : MonoBehaviour
     void StopDragging()
     {
         Vector3 finalPos = currentDraggingFurniture.transform.position;
-        Vector2Int gridSize = GetGridSizeFromData(currentFurnitureData);
+        Vector2Int gridSize = GetGridSizeFromData(currentFurnitureData, currentDraggingFurniture.transform.eulerAngles.y);
         
         // 检查最终位置是否合法
         if (gridSystem.IsPositionAvailable(finalPos, gridSize))
@@ -169,9 +165,10 @@ public class FurniturePlacer : MonoBehaviour
         // 每次旋转90度
         currentDraggingFurniture.transform.Rotate(0, 90, 0);
         
-        // 旋转后重新检测碰撞
+        // 旋转后重新计算占用 footprint（非正方形家具需交换长宽）并检测碰撞
         Vector3 currentPos = currentDraggingFurniture.transform.position;
-        bool isValid = gridSystem.IsPositionAvailable(currentPos, GetGridSizeFromData(currentFurnitureData));
+        float rotationY = currentDraggingFurniture.transform.eulerAngles.y;
+        bool isValid = gridSystem.IsPositionAvailable(currentPos, GetGridSizeFromData(currentFurnitureData, rotationY));
         SetMaterial(currentDraggingFurniture, isValid ? validMaterial : invalidMaterial);
     }
     
@@ -182,7 +179,7 @@ public class FurniturePlacer : MonoBehaviour
     {
         currentDraggingFurniture.transform.position = originalPosition;
         currentDraggingFurniture.transform.rotation = originalRotation;
-        gridSystem.OccupyCells(originalPosition, GetGridSizeFromData(currentFurnitureData), true);
+        gridSystem.OccupyCells(originalPosition, GetGridSizeFromData(currentFurnitureData, originalRotation.eulerAngles.y), true);
         SetMaterial(currentDraggingFurniture, normalMaterial);
         
         isDragging = false;
@@ -193,14 +190,14 @@ public class FurniturePlacer : MonoBehaviour
     /// <summary>
     /// 新增家具（从商店购买）
     /// </summary>
-    public void AddFurniture(FurnitureData furniture, Vector3 position)
+    public void AddFurniture(FurnitureData furniture, Vector3 position, float rotationY = 0f)
     {
         Vector3 snappedPos = gridSystem.SnapToGrid(position);
-        Vector2Int gridSize = new Vector2Int((int)furniture.gridSize.x, (int)furniture.gridSize.y);
+        Vector2Int gridSize = GetGridSizeFromData(furniture, rotationY);
         
         if (gridSystem.IsPositionAvailable(snappedPos, gridSize))
         {
-            GameObject newFurniture = Instantiate(furniture.prefab, snappedPos, Quaternion.identity);
+            GameObject newFurniture = Instantiate(furniture.prefab, snappedPos, Quaternion.Euler(0, rotationY, 0));
             FurnitureItem item = newFurniture.AddComponent<FurnitureItem>();
             item.Initialize(furniture);
             
@@ -224,7 +221,7 @@ public class FurniturePlacer : MonoBehaviour
         FurnitureItem item = furniture.GetComponent<FurnitureItem>();
         if (item != null)
         {
-            Vector2Int gridSize = new Vector2Int((int)item.furnitureData.gridSize.x, (int)item.furnitureData.gridSize.y);
+            Vector2Int gridSize = GetGridSizeFromData(item.furnitureData, furniture.transform.eulerAngles.y);
             gridSystem.OccupyCells(furniture.transform.position, gridSize, false);
             placedFurnitures.Remove(furniture);
             Destroy(furniture);
@@ -281,7 +278,7 @@ public class FurniturePlacer : MonoBehaviour
                 FurnitureItem item = newFurniture.AddComponent<FurnitureItem>();
                 item.Initialize(furnitureData);
                 
-                Vector2Int gridSize = new Vector2Int((int)furnitureData.gridSize.x, (int)furnitureData.gridSize.y);
+                Vector2Int gridSize = GetGridSizeFromData(furnitureData, data.rotationY);
                 gridSystem.OccupyCells(data.GetPosition(), gridSize, true);
                 placedFurnitures.Add(newFurniture);
             }
@@ -289,11 +286,14 @@ public class FurniturePlacer : MonoBehaviour
     }
     
     /// <summary>
-    /// 从 FurnitureData 获取网格尺寸
+    /// 从 FurnitureData 获取网格尺寸。
+    /// 当家具旋转 90°/270°（奇数个 90°）时交换长宽，使占用 footprint 与视觉朝向一致。
     /// </summary>
-    private Vector2Int GetGridSizeFromData(FurnitureData data)
+    private Vector2Int GetGridSizeFromData(FurnitureData data, float rotationY = 0f)
     {
-        return new Vector2Int((int)data.gridSize.x, (int)data.gridSize.y);
+        Vector2Int size = new Vector2Int((int)data.gridSize.x, (int)data.gridSize.y);
+        int quarterTurns = Mathf.RoundToInt(Mathf.Repeat(rotationY, 360f) / 90f) % 2;
+        return quarterTurns == 1 ? new Vector2Int(size.y, size.x) : size;
     }
     
     private void SetMaterial(GameObject obj, Material mat)

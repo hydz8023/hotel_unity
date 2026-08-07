@@ -7,12 +7,19 @@ public class PlacementPreview : MonoBehaviour
     public Material invalidPreviewMat;    // 红色半透明
     
     private FurnitureData pendingFurniture;
-    private GridSystem gridSystem;
+    [SerializeField] private GridSystem gridSystem;
+    [SerializeField] private FurniturePlacer furniturePlacer;
     private bool isPlacing = false;
     
     void Start()
     {
-        gridSystem = FindObjectOfType<GridSystem>();
+        // 优先使用 Inspector 注入的引用；未分配时回退到场景查找（兼容旧场景）
+        if (gridSystem == null)
+        {
+            gridSystem = FindObjectOfType<GridSystem>();
+            if (gridSystem == null)
+                Debug.LogWarning("[PlacementPreview] 未分配 GridSystem 引用，且场景中未找到。");
+        }
     }
     
     void Update()
@@ -30,8 +37,8 @@ public class PlacementPreview : MonoBehaviour
             Vector3 snappedPos = gridSystem.SnapToGrid(targetPos);
             previewObject.transform.position = snappedPos;
             
-            // 获取家具占用的网格尺寸（Vector2 转 Vector2Int）
-            Vector2Int gridSize = new Vector2Int((int)pendingFurniture.gridSize.x, (int)pendingFurniture.gridSize.y);
+            // 获取家具占用的网格尺寸（考虑旋转后交换长宽，与落位 footprint 一致）
+            Vector2Int gridSize = GetEffectiveGridSize(pendingFurniture, previewObject.transform.eulerAngles.y);
             
             // 检查是否可放置
             bool isValid = gridSystem.IsPositionAvailable(snappedPos, gridSize);
@@ -43,14 +50,10 @@ public class PlacementPreview : MonoBehaviour
                 PlaceFurniture();
             }
             
-            // 按Esc取消（若 Popup 打开则优先关面板）
+            // 按Esc取消。Popup 的 Esc 关闭由 UIManager 自行处理；
+            // 暂停类 Popup 打开时 AllowsWorldInput=false，本分支不会进入，Esc 优先级天然成立。
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                if (UIManager.Instance != null && UIManager.Instance.TryCloseTopPopup())
-                {
-                    return;
-                }
-
                 CancelPlacement();
             }
             
@@ -81,10 +84,14 @@ public class PlacementPreview : MonoBehaviour
     
     void PlaceFurniture()
     {
-        FurniturePlacer placer = FindObjectOfType<FurniturePlacer>();
-        if (placer != null)
+        if (furniturePlacer == null)
         {
-            placer.AddFurniture(pendingFurniture, previewObject.transform.position);
+            furniturePlacer = FindObjectOfType<FurniturePlacer>();
+        }
+        if (furniturePlacer != null)
+        {
+            // 传入预览当前旋转，确保落位 footprint 与预览校验一致
+            furniturePlacer.AddFurniture(pendingFurniture, previewObject.transform.position, previewObject.transform.eulerAngles.y);
         }
         else
         {
@@ -114,5 +121,15 @@ public class PlacementPreview : MonoBehaviour
         {
             renderer.material = targetMat;
         }
+    }
+
+    /// <summary>
+    /// 计算考虑旋转后的占用尺寸：旋转 90°/270° 时交换长宽，与 FurniturePlacer 保持一致。
+    /// </summary>
+    private Vector2Int GetEffectiveGridSize(FurnitureData data, float rotationY)
+    {
+        Vector2Int size = new Vector2Int((int)data.gridSize.x, (int)data.gridSize.y);
+        int quarterTurns = Mathf.RoundToInt(Mathf.Repeat(rotationY, 360f) / 90f) % 2;
+        return quarterTurns == 1 ? new Vector2Int(size.y, size.x) : size;
     }
 }
