@@ -488,6 +488,7 @@ MonoBehaviour:
   hudLayer: {fileID: 0}
   popupLayer: {fileID: 0}
   popupBlocker: {fileID: 0}
+  inputMode: {fileID: 11400000, guid: 50c79ffe61085454d91cfba20b65fd94, type: 2}
 --- !u!4 &1949271250
 Transform:
   m_ObjectHideFlags: 0
