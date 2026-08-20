@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb12a63bb0011dc499c0f41a1b0d054e, type: 3}
+  m_Name: counter_01
+  m_EditorClassIdentifier: 
+  furnitureId: counter_01
+  furnitureName: "\u67DC\u53F0"
+  prefab: {fileID: 7682313057581171389, guid: 83365012cdebffd45a1fe574e4d2fc78, type: 3}
+  gridSize: {x: 2, y: 1}
+  price: 200
+  category: 1
+  icon: {fileID: 0}

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb12a63bb0011dc499c0f41a1b0d054e, type: 3}
+  m_Name: vase_01
+  m_EditorClassIdentifier: 
+  furnitureId: vase_01
+  furnitureName: "\u82B1\u74F6"
+  prefab: {fileID: 7639959378810779642, guid: 696da5841f66d474a82268d9ed2a61b3, type: 3}
+  gridSize: {x: 1, y: 1}
+  price: 50
+  category: 3
+  icon: {fileID: 0}

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a552226a74f69dd44a8dbc410765a391, type: 3}
+  m_Name: FurnitureDatabase
+  m_EditorClassIdentifier: 
+  allFurniture:
+  - {fileID: 11400000, guid: a3ba48b463d3a9b4b97b22bbbbda46a8, type: 2}
+  - {fileID: 11400000, guid: ebe11a997dab3f644b859aa201bd600e, type: 2}
+  - {fileID: 11400000, guid: e1fe02d8a2963f3498095cd013c76d70, type: 2}
+  - {fileID: 11400000, guid: bbfdb3ed43234394a96833e58aeda9dc, type: 2}
+  - {fileID: 11400000, guid: 697b23fe7bfbe2147a6e0799abb97bb5, type: 2}
+  - {fileID: 11400000, guid: d5436e4efa20adc49bb29a59a2190548, type: 2}

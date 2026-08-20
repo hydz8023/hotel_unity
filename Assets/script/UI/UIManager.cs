@@ -237,6 +237,7 @@ public class UIManager : MonoBehaviour
         }
 
         GameObject fallback = new GameObject(config.panelId, typeof(RectTransform));
+        fallback.layer = LayerMask.NameToLayer("UI");
         fallback.transform.SetParent(parent, false);
         Debug.LogWarning($"未配置 Prefab，且 panelId={config.panelId} 无内置 UI 模板。");
         return fallback;
@@ -404,6 +405,7 @@ public class UIManager : MonoBehaviour
             return;
 
         GameObject camObj = new GameObject("UI Camera", typeof(Camera));
+        camObj.layer = LayerMask.NameToLayer("UI");
         camObj.transform.SetParent(transform, false);
         uiCamera = camObj.GetComponent<Camera>();
 
@@ -436,6 +438,7 @@ public class UIManager : MonoBehaviour
         if (uiCanvas == null)
         {
             GameObject canvasObject = new GameObject("UICanvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+            canvasObject.layer = LayerMask.NameToLayer("UI");
             canvasObject.transform.SetParent(transform, false);
             uiCanvas = canvasObject.GetComponent<Canvas>();
 
@@ -468,6 +471,7 @@ public class UIManager : MonoBehaviour
     private static RectTransform CreateLayerRect(string name, Transform parent)
     {
         GameObject layerObject = new GameObject(name, typeof(RectTransform));
+        layerObject.layer = LayerMask.NameToLayer("UI");
         layerObject.transform.SetParent(parent, false);
         RectTransform rect = layerObject.GetComponent<RectTransform>();
         rect.anchorMin = Vector2.zero;
@@ -480,6 +484,7 @@ public class UIManager : MonoBehaviour
     private static Image CreatePopupBlocker(RectTransform parent)
     {
         GameObject blockerObject = new GameObject("PopupBlocker", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        blockerObject.layer = LayerMask.NameToLayer("UI");
         blockerObject.transform.SetParent(parent, false);
         blockerObject.transform.SetAsFirstSibling();
 

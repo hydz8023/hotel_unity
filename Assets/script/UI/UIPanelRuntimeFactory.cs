@@ -40,6 +40,7 @@ public static class UIPanelRuntimeFactory
     private static GameObject CreatePanelRoot(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPosition, Vector2 sizeDelta)
     {
         GameObject root = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        root.layer = LayerMask.NameToLayer("UI");
         root.transform.SetParent(parent, false);
 
         RectTransform rect = root.GetComponent<RectTransform>();
@@ -66,6 +67,7 @@ public static class UIPanelRuntimeFactory
         TextAnchor alignment)
     {
         GameObject textObject = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+        textObject.layer = LayerMask.NameToLayer("UI");
         textObject.transform.SetParent(parent, false);
 
         RectTransform rect = textObject.GetComponent<RectTransform>();
@@ -95,6 +97,7 @@ public static class UIPanelRuntimeFactory
         Vector2 sizeDelta)
     {
         GameObject buttonObject = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+        buttonObject.layer = LayerMask.NameToLayer("UI");
         buttonObject.transform.SetParent(parent, false);
 
         RectTransform rect = buttonObject.GetComponent<RectTransform>();
