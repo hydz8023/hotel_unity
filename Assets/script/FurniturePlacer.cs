@@ -59,6 +59,12 @@ public class FurniturePlacer : MonoBehaviour
         {
             CancelDragging();
         }
+        
+        // 删除家具（拖拽时按 Delete/Backspace）
+        if (isDragging && (Input.GetKeyDown(KeyCode.Delete) || Input.GetKeyDown(KeyCode.Backspace)))
+        {
+            DeleteDraggingFurniture();
+        }
     }
     
     /// <summary>
@@ -182,6 +188,29 @@ public class FurniturePlacer : MonoBehaviour
         gridSystem.OccupyCells(originalPosition, GetGridSizeFromData(currentFurnitureData, originalRotation.eulerAngles.y), true);
         SetMaterial(currentDraggingFurniture, normalMaterial);
         
+        isDragging = false;
+        currentDraggingFurniture = null;
+        currentFurnitureData = null;
+    }
+    
+    /// <summary>
+    /// 删除当前拖拽中的家具（Delete/Backspace）
+    /// </summary>
+    private void DeleteDraggingFurniture()
+    {
+        GameObject target = currentDraggingFurniture;
+        if (target == null)
+        {
+            isDragging = false;
+            currentDraggingFurniture = null;
+            currentFurnitureData = null;
+            return;
+        }
+
+        // RemoveFurniture 内部会释放占用、移出列表、销毁对象并保存布局。
+        // 注：选中时已释放过一次占用，重复释放是幂等安全的。
+        RemoveFurniture(target);
+
         isDragging = false;
         currentDraggingFurniture = null;
         currentFurnitureData = null;
