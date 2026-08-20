@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   furnitureId: vase_01
   furnitureName: "\u82B1\u74F6"
-  prefab: {fileID: 7639959378810779642, guid: 696da5841f66d474a82268d9ed2a61b3, type: 3}
+  prefab: {fileID: 5518719152167915516, guid: 696da5841f66d474a82268d9ed2a61b3, type: 3}
   gridSize: {x: 1, y: 1}
   price: 50
   category: 3

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   furnitureId: lantern_01
   furnitureName: "\u706F\u7B3C"
-  prefab: {fileID: 5981071020176044015, guid: 443d1f4c7a3ddef4f827724345807059, type: 3}
+  prefab: {fileID: 3961462118618560731, guid: 443d1f4c7a3ddef4f827724345807059, type: 3}
   gridSize: {x: 1, y: 1}
   price: 60
   category: 4

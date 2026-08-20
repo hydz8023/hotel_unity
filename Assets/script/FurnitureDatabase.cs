@@ -14,6 +14,8 @@ public class FurnitureDatabase : ScriptableObject
         idMap = new Dictionary<string, FurnitureData>();
         foreach (FurnitureData data in allFurniture)
         {
+            if (data == null || string.IsNullOrEmpty(data.furnitureId))
+                continue;
             if (!idMap.ContainsKey(data.furnitureId))
             {
                 idMap.Add(data.furnitureId, data);
@@ -23,6 +25,8 @@ public class FurnitureDatabase : ScriptableObject
     
     public FurnitureData GetFurnitureById(string id)
     {
+        if (idMap == null || string.IsNullOrEmpty(id))
+            return null;
         idMap.TryGetValue(id, out FurnitureData data);
         return data;
     }

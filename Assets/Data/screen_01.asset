@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   furnitureId: screen_01
   furnitureName: "\u5C4F\u98CE"
-  prefab: {fileID: 2210401579348218313, guid: 5bc2eced7de821a4eb3f1c724fb68ad7, type: 3}
+  prefab: {fileID: 1700135045053075106, guid: 5bc2eced7de821a4eb3f1c724fb68ad7, type: 3}
   gridSize: {x: 2, y: 1}
   price: 120
   category: 2

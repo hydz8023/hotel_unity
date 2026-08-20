@@ -4,7 +4,6 @@ using UnityEngine;
 /// <summary>
 /// 一键生成 v0.1 基础家具：primitive Prefab + FurnitureData 资产 + FurnitureDatabase。
 /// - 菜单手动触发：客栈/生成基础家具
-/// - 首次编译后自动生成（幂等，数据库已存在则跳过）
 /// 采用两步法：先生成 prefab 并刷新，再重新加载 prefab 资产引用以生成 FurnitureData，
 /// 避免 SaveAsPrefabAsset 后立即序列化导致的 prefab 引用为空（{fileID: 0}）。
 /// </summary>
@@ -26,14 +25,6 @@ public static class FurnitureGenerator
         public Vector2 gridSize;
         public int price;
         public FurnitureCategory category;
-    }
-
-    [InitializeOnLoadMethod]
-    private static void AutoGenerateOnLoad()
-    {
-        if (AssetDatabase.LoadAssetAtPath<FurnitureDatabase>(DatabasePath) != null)
-            return;
-        Generate();
     }
 
     [MenuItem("客栈/生成基础家具")]
