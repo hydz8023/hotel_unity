@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 /// <summary>
 /// 每日结算面板 —— 显示当日收支与满意度。
-/// 由 UIPanelRuntimeFactory 运行时动态生成。
+/// 由 DailyReportPanel.prefab 实例化，脚本在 Awake 自动绑定 UI 引用。
 /// </summary>
 public class DailyReportPanel : UIPanelBase
 {
@@ -14,23 +14,23 @@ public class DailyReportPanel : UIPanelBase
     private Text satisfactionText;
     private Button closeButton;
 
-    public void SetReferences(
-        Text titleText,
-        Text incomeText,
-        Text expenseText,
-        Text profitText,
-        Text satisfactionText,
-        Button closeButton)
+    private void Awake()
     {
-        this.titleText = titleText;
-        this.incomeText = incomeText;
-        this.expenseText = expenseText;
-        this.profitText = profitText;
-        this.satisfactionText = satisfactionText;
-        this.closeButton = closeButton;
+        if (titleText == null)
+            titleText = FindRecursive(transform, "TitleText")?.GetComponent<Text>();
+        if (incomeText == null)
+            incomeText = FindRecursive(transform, "IncomeText")?.GetComponent<Text>();
+        if (expenseText == null)
+            expenseText = FindRecursive(transform, "ExpenseText")?.GetComponent<Text>();
+        if (profitText == null)
+            profitText = FindRecursive(transform, "ProfitText")?.GetComponent<Text>();
+        if (satisfactionText == null)
+            satisfactionText = FindRecursive(transform, "SatisfactionText")?.GetComponent<Text>();
+        if (closeButton == null)
+            closeButton = FindRecursive(transform, "CloseButton")?.GetComponent<Button>();
 
-        if (this.closeButton != null)
-            this.closeButton.onClick.AddListener(OnCloseClicked);
+        if (closeButton != null)
+            closeButton.onClick.AddListener(OnCloseClicked);
     }
 
     public override void OnRefresh(object param)
@@ -53,5 +53,20 @@ public class DailyReportPanel : UIPanelBase
     private void OnCloseClicked()
     {
         RequestClose();
+    }
+
+    private static Transform FindRecursive(Transform root, string name)
+    {
+        if (root.name == name)
+            return root;
+
+        foreach (Transform child in root)
+        {
+            Transform found = FindRecursive(child, name);
+            if (found != null)
+                return found;
+        }
+
+        return null;
     }
 }

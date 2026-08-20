@@ -77,12 +77,12 @@ public class FurniturePlacer : MonoBehaviour
         
         if (Physics.Raycast(ray, out hit, 100, furnitureLayer))
         {
-            currentDraggingFurniture = hit.collider.gameObject;
-            
-            // 获取家具组件
-            FurnitureItem furnitureItem = currentDraggingFurniture.GetComponent<FurnitureItem>();
+            // Collider 位于子物体（如 Mesh）上，而 FurnitureItem 由运行时 AddComponent 挂在根物体上。
+            // 用 GetComponentInParent 从命中点向上找到根物体上的家具组件。
+            FurnitureItem furnitureItem = hit.collider.GetComponentInParent<FurnitureItem>();
             if (furnitureItem != null)
             {
+                currentDraggingFurniture = furnitureItem.gameObject;
                 currentFurnitureData = furnitureItem.furnitureData;
                 originalPosition = currentDraggingFurniture.transform.position;
                 originalRotation = currentDraggingFurniture.transform.rotation;
@@ -327,8 +327,12 @@ public class FurniturePlacer : MonoBehaviour
     
     private void SetMaterial(GameObject obj, Material mat)
     {
-        Renderer renderer = obj.GetComponent<Renderer>();
-        if (renderer != null && mat != null)
+        if (obj == null || mat == null)
+            return;
+
+        // Renderer 位于子物体（如 Mesh）上，根物体本身无 Renderer。
+        Renderer renderer = obj.GetComponentInChildren<Renderer>();
+        if (renderer != null)
         {
             renderer.material = mat;
         }

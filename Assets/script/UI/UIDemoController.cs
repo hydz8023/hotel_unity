@@ -31,5 +31,10 @@ public class UIDemoController : MonoBehaviour
                 UIManager.PanelDailyReport,
                 new DailyReportData(demoDay, demoIncome, demoExpense, demoSatisfaction));
         }
+
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            UIManager.ShowPanel(UIManager.PanelShop);
+        }
     }
 }

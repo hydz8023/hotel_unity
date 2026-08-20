@@ -15,6 +15,7 @@ public class UIManager : MonoBehaviour
 {
     public const string PanelHUD = "HUD";
     public const string PanelDailyReport = "DailyReport";
+    public const string PanelShop = "Shop";
 
     public static UIManager Instance { get; private set; }
 
@@ -25,6 +26,13 @@ public class UIManager : MonoBehaviour
     [Header("预制体引用（可选，优先于运行时构造）")]
     public GameObject hudPrefab;
     public GameObject dailyReportPrefab;
+    public GameObject shopPrefab;
+
+    [Header("数据引用（商店等面板回退使用）")]
+    public FurnitureDatabase furnitureDatabase;
+
+    [Header("摆放逻辑（HUD 存储/读取按钮使用）")]
+    public FurniturePlacer furniturePlacer;
 
     [Header("层级节点（可留空，运行时自动创建）")]
     public Canvas uiCanvas;
@@ -56,13 +64,29 @@ public class UIManager : MonoBehaviour
         GameInputGate.Bind(inputMode);
         EnsureUICamera();
         EnsureCanvasHierarchy();
+        EnsureEventSystem();
+    }
+
+    /// <summary>
+    /// 确保场景存在 EventSystem（uGUI 按钮/滚动依赖）。缺失时自动创建。
+    /// </summary>
+    private void EnsureEventSystem()
+    {
+        if (UnityEngine.EventSystems.EventSystem.current != null)
+            return;
+
+        GameObject eventSystem = new GameObject("EventSystem",
+            typeof(UnityEngine.EventSystems.EventSystem),
+            typeof(UnityEngine.EventSystems.StandaloneInputModule));
+        eventSystem.transform.SetParent(transform, false);
     }
 
     private void Start()
     {
         if (openHudOnStart)
         {
-            // Open(PanelHUD, new HUDData(0, 0f));
+            int silver = PlayerWallet.Instance != null ? PlayerWallet.Instance.Silver : 0;
+            Show(PanelHUD, new HUDData(silver, 0f));
         }
     }
 
@@ -226,20 +250,10 @@ public class UIManager : MonoBehaviour
             return Instantiate(config.prefab, parent);
         }
 
-        if (config.panelId == PanelHUD)
-        {
-            return UIPanelRuntimeFactory.CreateHUDPanel(parent);
-        }
-
-        if (config.panelId == PanelDailyReport)
-        {
-            return UIPanelRuntimeFactory.CreateDailyReportPanel(parent);
-        }
-
+        Debug.LogError($"面板 {config.panelId} 未配置 Prefab，无法实例化。");
         GameObject fallback = new GameObject(config.panelId, typeof(RectTransform));
         fallback.layer = LayerMask.NameToLayer("UI");
         fallback.transform.SetParent(parent, false);
-        Debug.LogWarning($"未配置 Prefab，且 panelId={config.panelId} 无内置 UI 模板。");
         return fallback;
     }
 
@@ -292,6 +306,16 @@ public class UIManager : MonoBehaviour
             config.blockInputBelow = true;
             config.pauseGameplay = true;
             config.prefab = Instance?.dailyReportPrefab;
+            return config;
+        }
+
+        if (panelId == PanelShop)
+        {
+            config.layer = UILayer.Popup;
+            config.cacheOnClose = true;
+            config.blockInputBelow = true;
+            config.pauseGameplay = true;
+            config.prefab = Instance?.shopPrefab;
             return config;
         }
 
@@ -391,7 +415,7 @@ public class UIManager : MonoBehaviour
         popupBlocker.gameObject.SetActive(showBlocker);
         if (showBlocker)
         {
-            popupBlocker.transform.SetAsLastSibling();
+            popupBlocker.transform.SetAsFirstSibling();
         }
     }
 
